@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
-
+import dj_database_url
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,7 +14,16 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 # In a Kubernetes setup with an Ingress, you can allow all hosts,
 # as the Ingress controller will handle host-based routing.
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
+
+
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+else:
+    PRODUCTION_HOST = os.environ.get('PRODUCTION_HOST')
+    if PRODUCTION_HOST:
+        ALLOWED_HOSTS.append(PRODUCTION_HOST)
 
 
 # Application definition
@@ -23,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders'
 
     # Third-party apps
     'rest_framework',
@@ -36,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -66,18 +79,21 @@ WSGI_APPLICATION = 'eka_backend.wsgi.application'
 
 # --- THIS IS THE CRITICAL FIX ---
 # Database configuration now reads from environment variables.
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('DB_NAME'),
+#         'USER': os.environ.get('DB_USER'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST'),
+#         'PORT': os.environ.get('DB_PORT'),
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-    }
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
 }
 
-
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
@@ -110,3 +126,8 @@ REST_FRAMEWORK = {
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
+CORS_ALLOWED_ORIGINS = [
+    "https://68b83395a26bc91808d93498--ekaconnect.netlify.app/", 
+    "http://localhost:3000",             
+    "http://127.0.0.1:3000",
+]
