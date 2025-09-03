@@ -126,8 +126,13 @@ REST_FRAMEWORK = {
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
-CORS_ALLOWED_ORIGINS = [
-    "https://68b83395a26bc91808d93498--ekaconnect.netlify.app", 
-    "http://localhost:3000",             
-    "http://127.0.0.1:3000",
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    # For local development (e.g., http://localhost:3000)
+    r"^http://localhost:\d+$", 
+    
+    # For your main Netlify site
+    r"^https://ekaconnect\.netlify\.app$",
+    
+    # For all Netlify deploy previews (e.g., https://<hash>--ekaconnect.netlify.app)
+    r"^https://.*--ekaconnect\.netlify\.app$",
 ]
