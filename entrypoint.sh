@@ -7,6 +7,9 @@ set -e
 echo "Applying database migrations..."
 python manage.py migrate
 
+echo "Insert Data"
+python manage.py seed_all_data
+
 # ✅ NEW COMMAND ADDED HERE:
 # This will run on every deploy, ensuring the superuser exists with the correct credentials.
 echo "Ensuring superuser exists..."
